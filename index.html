@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>d3.js data driven page</title>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+        <style>
+            body {background-color: white;}
+            .special {color: rgb(29, 106, 206); font-weight: bold; text-align: center;
+                      text-decoration-line: underline; font-size: 21pt;}
+            .title {color:rgb(0, 0, 0); text-align: center; font-size: 18pt;}
+            .text{color: black; text-align:justify ; font-size: 16pt;}
+            .operator {font-weight: bold;}
+            .email {color:rgb(39, 37, 37); font-size: 14pt; text-align: center;}
+            p{
+                color:black
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <br>
+        <div class="special">First take-away: Shiny App</div>
+        <br>
+        <div class="title">MARTA ILUNDAIN MARTÍNEZ</div>
+        <br>
+        <div class="email">100439245@alumnos.uc3m.es</div>
+        <br>
+        <div class="text" style = "margin-left: 2.5cm;margin-right: 2.5cm;">In this first take away we have
+            created a Shiny App. This Shiny App shows a summary of the dataset Wine (obtained from <a href="https://www.kaggle.com/uciml/red-wine-quality-cortez-et-al-2009?select=winequality-red.csv" target="_blank"><b>kaggle</b></a>).
+            The chosen data set contains more than 6000 observations of different wines and its main properties, such as alcohol, pH, density, etc. This data set contains a variable called quality, which gives a score between 0 and 10 to every wine.
+
+        </div>
+        <br>
+
+        <div class="text" style = "margin-left: 2.5cm; margin-right: 2.5cm;"> In the shiny App we have the following tabs:
+
+            <ul>
+                <li>Data: in this tab we can select what to show in the main panel. By defect, it shows an
+                    introduction to the dataset. We can also see a summary of our data (which was created using the function dfSummary), and we 
+                    can also see a table where all the raw data is.
+                </li>
+                <li>Machine Learning: this tab was inspired by the following <a href="https://github.com/EarlGlynn/ShinyCaret" target="_blank"><b>App</b></a>. Here we can do a classification on the variable type of the dataset. This variable
+                can take value 'white' or 'red'. To carry out the classification we can select the random seed, the proportion of data that will be the train and finally the method that will do the classification.
+            We can select between lda, qda and random forest. After selecting the parameters we can see the result in two tabs. The first one which shows the fit of the model and the second one in which we can see
+        the confusion matrix and the general results. Also, we can click on generate pdf and a pdf of classification analysis will be created using the parameters selected.</li>
+                <li>Plots of the data: here we can select what kind of plot we want to see (histogram, boxplot or scatterplot). The histogram is in relationship with type, as well as the boxplot. In the scatterplot,
+                    we have the regression line for a linear model that fits the two selected variables. Also, we can click on a certain point in the graph and up to 10 observations will be shown in the table below (this 10 observations are the most close to the clicked site with a threshold of 10).
+                </li>
+                <li> Interactive plots: here we can see a pieplot of variable type, a 3d plot of variables alcohol, total sulfur dioxide and free sulfur dioxide and finally a buble chart where we can see the variables alcohol and total sulphur dioxide, with type and quality too.</li>
+            <li>References: the main pages where we have seen to do this Shiny App.</li>  
+            </ul>  
+        
+        </div>
+        
+
+            
+        </script>
+    </body>
+</html>
