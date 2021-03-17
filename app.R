@@ -3,7 +3,7 @@
 library(devtools)
 library(usethis)
 library(ggplot2)
-
+require(plotly)
 library(kaggler)
 kaggler::kgl_auth(username="martailundain",key="55489399e4f868af9b80e535ef1ab841")
 
