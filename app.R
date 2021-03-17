@@ -117,7 +117,11 @@ ui <- navbarPage("First Take Away",
                           fluidPage(
                             titlePanel("Interactive plots of the data"),
                             br(),
-                            "hola",
+                            "In this tab we can see the main characteristics of the dataset using some plots. These
+                            plots are static, we can select between a Histogram (separated by variable type),
+                            a boxplot (also with groups separated by type of wine), and a scatterplot.
+                            ",
+                            br(),
                             sidebarLayout(
                               sidebarPanel(
                                 submitButton("Click to update selection and show plot"),
@@ -199,6 +203,11 @@ ui <- navbarPage("First Take Away",
                                                           "quality"),
                                               selected = "fixed.acidity",
                                               multiple = FALSE),
+                                  h6(paste("Note: We can click on the graph and there will appear in a table the 
+                                           observations (up to 10) which are more close to where we click. In order
+                                           to see this in the table, click on the button Click to update selection
+                                           and show plot. Doing this, the table will be uploaded.")),
+                                  
                             
                                 
                               )),
@@ -213,7 +222,8 @@ ui <- navbarPage("First Take Away",
                                 ),
                                 conditionalPanel(
                                   condition = "input.view2 == 'scatterplot'",
-                                  plotOutput("scatplot")
+                                  plotOutput("scatplot", click = "plot_click"),
+                                  tableOutput("plotinfo")
                                 )
                                 
                               )
@@ -226,17 +236,17 @@ ui <- navbarPage("First Take Away",
                             br(),
                             sidebarLayout(
                               sidebarPanel(
-                                p("To show a summary of the data, we have used the function dfSummary,
-                                  which shows  univariate statistics and/or frequency distributions, 
-                                  bar charts or histograms, as well as missing data counts and proportions"),
-                                
+                                p("in this panel")
                               ),
                               mainPanel(
-                                
-                              )
-                            )
+                                tabsetPanel(type = "tabs",
+                                            tabPanel("Pieplot", plotlyOutput("pie")),
+                                            tabPanel("3D plot",   plotlyOutput("threedp")),
+                                            tabPanel("Sulfur dioxide",   plotlyOutput("sulfur")))
+
                           )
-                 ),
+                 )
+                 )),
                  useShinyjs()
 )
 
@@ -310,6 +320,22 @@ server <- function(input, output) {
                   color="black", fill="blue") + ggtitle("Scatterplot of selected variables")
   })
   
+  output$plotinfo <- renderTable({
+    
+      nearPoints(wine, 
+                 input$plot_click, threshold = 10, maxpoints = 10,
+                 addDist = TRUE)
+    
+  })
+  
+  output$pie <- renderPlotly({
+    
+    plot_ly(wine, labels = ~type,  type = 'pie')  %>% layout(title = 'Pieplot of variable type')
+    })
+  output$threedp = renderPlotly({
+    plot_ly(wine, x = ~log_free.sulfur.dioxide, y = ~log_total.sulfur.dioxide, z = ~alcohol) %>%
+      add_markers(color = ~type)
+  })
 }
 
 # Run the application 
