@@ -100,7 +100,7 @@ responseRoutine <- function(method, trainpercent, randomseed)
 }
 ```
 
-We have been able to change the random seed, the data partition and the method in which we perform the analysis (the options were ``lda``, ``qda`` and ``random forest``). Using these, we obtain:
+We have been able to change the random seed, the data partition and the method in which we perform the analysis (the options were ``lda``, ``qda`` and ``rpart`` (decision tree)). Using these, we obtain:
 
 # RESULTS
 
