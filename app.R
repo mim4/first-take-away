@@ -2,6 +2,7 @@
 
 library(devtools)
 library(usethis)
+library(ggplot2)
 
 library(kaggler)
 kaggler::kgl_auth(username="martailundain",key="55489399e4f868af9b80e535ef1ab841")
@@ -14,21 +15,22 @@ require(summarytools)
 winedata <- kgl_datasets_download(owner_dataset = "rajyellow46/wine-quality", 
                               fileName = "winequalityN.csv")
 
+#Preprocess of the data
+
+wine = na.omit(winedata)
+wine$type = as.factor(wine$type)
+wine[,7] = log(wine[,7])
+colnames(wine)[7] <- "log_free.sulfur.dioxide"
+wine[,8] = log(wine[,8])
+colnames(wine)[8] <- "log_total.sulfur.dioxide"
+
+
 
 #We set up the data given a certain fraction of data to train and a randomseed that we can choose.
 setupData <- function(trainpercent, randomseed)
 {
   # To make computations reproducible.
   set.seed(randomseed)
-  
-  #Preprocess of the data
-  
-  wine = na.omit(winedata)
-  wine$type = as.factor(wine$type)
-  wine[,7] = log(wine[,7])
-  colnames(wine)[7] <- "log_free.sulfur.dioxide"
-  wine[,8] = log(wine[,8])
-  colnames(wine)[8] <- "log_total.sulfur.dioxide"
 
   # Partition intro training and testing.
   spl = caret::createDataPartition(wine$type, p = trainpercent, list = FALSE)  # 80% for training
@@ -115,15 +117,104 @@ ui <- navbarPage("First Take Away",
                           fluidPage(
                             titlePanel("Interactive plots of the data"),
                             br(),
-                            "jola",
+                            "hola",
                             sidebarLayout(
                               sidebarPanel(
-                                p("To show a summary of the data, we have used the function dfSummary,
-                                  which shows  univariate statistics and/or frequency distributions, 
-                                  bar charts or histograms, as well as missing data counts and proportions"),
+                                submitButton("Click to update selection and show plot"),
+                                radioButtons("view2", "",
+                                             choices =
+                                               list("Histograms" = "histogram",
+                                                    "boxplots" = "Boxplots",
+                                                    "Scatterplots" = "scatterplot")),
                                 
-                              ),
+                                conditionalPanel(
+                                  condition = "input.view2 == 'histogram'",
+                                  
+                                  selectInput("numvariables", "Variables",
+                                              choices = c("fixed.acidity",
+                                                          "volatile.acidity",
+                                                          "citric.acid",
+                                                          "residual.sugar",
+                                                          "chlorides",
+                                                          "log_free.sulfur.dioxide",
+                                                          "log_total.sulfur.dioxide",
+                                                          "density",
+                                                          "pH",
+                                                          "sulphates",
+                                                          "alcohol",
+                                                          "quality"),
+                                              selected = "fixed.acidity",
+                                              multiple = FALSE),
+                                  sliderInput("n_bins", label = NULL, min = 10, max = 50, value = 20)
+                                ),
+                                conditionalPanel(
+                                  condition = "input.view2 == 'Boxplots'",
+                                  
+                                  selectInput("facvariables", "Variables",
+                                              choices = c("fixed.acidity",
+                                                          "volatile.acidity",
+                                                          "citric.acid",
+                                                          "residual.sugar",
+                                                          "chlorides",
+                                                          "log_free.sulfur.dioxide",
+                                                          "log_total.sulfur.dioxide",
+                                                          "density",
+                                                          "pH",
+                                                          "sulphates",
+                                                          "alcohol",
+                                                          "quality"),
+                                              selected = "fixed.acidity",
+                                              multiple = FALSE)
+                                ),
+                                conditionalPanel(
+                                  condition = "input.view2 == 'scatterplot'",
+                                  
+                                  selectInput("allvariables1", "Variable 1 (x)",
+                                              choices = c("type","fixed.acidity",
+                                                                      "volatile.acidity",
+                                                                      "citric.acid",
+                                                                      "residual.sugar",
+                                                                      "chlorides",
+                                                                      "log_free.sulfur.dioxide",
+                                                                      "log_total.sulfur.dioxide",
+                                                                      "density",
+                                                                      "pH",
+                                                                      "sulphates",
+                                                                      "alcohol",
+                                                                      "quality"),
+                                                          selected = "fixed.acidity",
+                                              multiple = FALSE),
+                                  selectInput("allvariables2", "Variable 2 (y)",
+                                              choices = c("type","fixed.acidity",
+                                                          "volatile.acidity",
+                                                          "citric.acid",
+                                                          "residual.sugar",
+                                                          "chlorides",
+                                                          "log_free.sulfur.dioxide",
+                                                          "log_total.sulfur.dioxide",
+                                                          "density",
+                                                          "pH",
+                                                          "sulphates",
+                                                          "alcohol",
+                                                          "quality"),
+                                              selected = "fixed.acidity",
+                                              multiple = FALSE),
+                            
+                                
+                              )),
                               mainPanel(
+                                conditionalPanel(
+                                  condition = "input.view2 == 'Boxplots'",
+                                  plotOutput("boxplot")
+                                ),
+                                conditionalPanel(
+                                  condition = "input.view2 == 'histogram'",
+                                  plotOutput("histplot")
+                                ),
+                                conditionalPanel(
+                                  condition = "input.view2 == 'scatterplot'",
+                                  plotOutput("scatplot")
+                                )
                                 
                               )
                             )
@@ -199,6 +290,26 @@ server <- function(input, output) {
   output$datainfo <- renderPrint({
     p("Here we have blabla")
   })
+  
+  output$boxplot <- renderPlot({
+    ggplot(data=wine, aes_string( wine$type, input$facvariables )) + 
+      geom_boxplot(aes_string(fill = wine$type))+ ylab("Total Price") +
+      theme_bw() + ggtitle("Boxplot in relationship to Total Price") 
+  })
+  
+  output$histplot = renderPlot({
+    ggplot(data = wine, aes_string(x = input$numvariables, color=wine$type)) +
+      geom_histogram(bins = input$n_bins, fill = "white", alpha=0.5, position="identity") +
+      theme_bw() + ggtitle("Histogram of numerical variables") 
+  })
+  
+  output$scatplot = renderPlot({
+    ggplot(data = wine, aes_string(x= input$allvariables1, y= input$allvariables2)) +
+      geom_point(shape=18, color="chartreuse3", size = 3) + theme_bw() +
+      geom_smooth(method=lm, linetype="dashed",
+                  color="black", fill="blue") + ggtitle("Scatterplot of selected variables")
+  })
+  
 }
 
 # Run the application 
