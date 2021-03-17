@@ -254,6 +254,9 @@ ui <- navbarPage("First Take Away",
                           )
                  )
                  )),
+                 tabPanel("References",
+                          includeMarkdown("references.md")
+                 ),
                  useShinyjs()
 )
 
@@ -304,8 +307,8 @@ server <- function(input, output) {
     dfSummary(wine)
   })
   
-  output$datainfo <- renderUI({
-    h4("This shiny shows the main characteristics of a wine dataset. This wine dataset
+  output$datainfo <- renderPrint({
+    p("This shiny shows the main characteristics of a wine dataset. This wine dataset
     is a mix of two datasets, one for red wine and another one for white one. The two datasets 
     are related to red and white variants of the Portuguese Vinho Verde wine. The reference
     [Cortez et al., 2009]. Due to privacy and logistic issues, only physicochemical (inputs) 
