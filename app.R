@@ -242,7 +242,7 @@ ui <- navbarPage("First Take Away",
                                 tabsetPanel(type = "tabs",
                                             tabPanel("Pieplot", plotlyOutput("pie")),
                                             tabPanel("3D plot",   plotlyOutput("threedp")),
-                                            tabPanel("Sulfur dioxide",   plotlyOutput("sulfur")))
+                                            tabPanel("Bubble chart",   plotlyOutput("bubble")))
 
                           )
                  )
@@ -332,9 +332,19 @@ server <- function(input, output) {
     
     plot_ly(wine, labels = ~type,  type = 'pie')  %>% layout(title = 'Pieplot of variable type')
     })
+  
   output$threedp = renderPlotly({
     plot_ly(wine, x = ~log_free.sulfur.dioxide, y = ~log_total.sulfur.dioxide, z = ~alcohol) %>%
       add_markers(color = ~type)
+  })
+  
+  output$bubble = renderPlotly({
+    
+    fig <- plot_ly(wine, x = ~log_total.sulfur.dioxide, y = ~alcohol, text = ~type, type = 'scatter', mode = 'markers', color = ~quality, colors = 'Reds',
+                   marker = list(size = ~quality, opacity = 0.5))
+    fig <- fig %>% layout(title = 'Sulfur dioxide and alcohol given type and quality',
+                          xaxis = list(showgrid = FALSE),
+                          yaxis = list(showgrid = FALSE))
   })
 }
 
