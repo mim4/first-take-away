@@ -61,7 +61,7 @@ ui <- navbarPage("First Take Away",
                      mainPanel(
                        conditionalPanel(
                          condition = "input.view == 'info'",
-                         verbatimTextOutput("datainfo")
+                         textOutput("datainfo")
                        ),
                        conditionalPanel(
                          condition = "input.view == 'sum'",
@@ -293,12 +293,30 @@ server <- function(input, output) {
     data()$confusion
   })
   
-  output$summary <- renderPrint({
+  output$summary <- renderText({
     dfSummary(wine)
   })
   
   output$datainfo <- renderPrint({
-    p("Here we have blabla")
+    h4("This shiny shows the main characteristics of a wine dataset. This wine dataset
+    is a mix of two datasets, one for red wine and another one for white one. The two datasets 
+    are related to red and white variants of the Portuguese Vinho Verde wine. The reference
+    [Cortez et al., 2009]. Due to privacy and logistic issues, only physicochemical (inputs) 
+    and sensory (the output) variables are available (e.g. there is no data about grape types, 
+    wine brand, wine selling price, etc.).
+       
+       
+       This datasets has as variables: Input variables (based on physicochemical tests):
+fixed acidity, volatile acidity, citric acid, residual sugar, chlorides, free sulfur dioxide, total sulfur dioxide,  density
+pH, sulphates, alcohol and an output variable (based on sensory data) which is quality (score between 0 and 10).
+    
+  Acknowledgements:
+         
+         P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis.
+       Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.")
+
+
+
   })
   
   output$boxplot <- renderPlot({
