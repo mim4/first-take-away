@@ -236,7 +236,12 @@ ui <- navbarPage("First Take Away",
                             br(),
                             sidebarLayout(
                               sidebarPanel(
-                                p("in this panel")
+                                p("In this tabpanel we have three different interactive plots. The first
+                                  one is a pie chart where we can see the two types of wine. The second one is
+                                  a 3D plot of variables alcohol, total sulfur dioxide and free sulfur dioxide. The
+                                  last one is a bubble chart where we can see the relationship of alcohol and total
+                                  sulfur dioxide. When putting the mouse on one point we obtain the type of wine it is
+                                  and there is a scale of reds that indicate the quality of the wine.")
                               ),
                               mainPanel(
                                 tabsetPanel(type = "tabs",
