@@ -47,15 +47,30 @@ ui <- navbarPage("First Take Away",
                         br(),
                         sidebarLayout(
                           sidebarPanel(
-                       p("To show a summary of the data, we have used the function dfSummary,
-                                  which shows  univariate statistics and/or frequency distributions, 
-                                  bar charts or histograms, as well as missing data counts and proportions"),
-              
-                     ),
+                            radioButtons("view", "",
+                                         choices =
+                                           list("About this dataset" = "info",
+                                                "Summary" = "sum",
+                                                "Raw data" = "raw")),
+                            
+                            submitButton("Update selected"),
+                            
+                            ),
                      mainPanel(
-                       verbatimTextOutput("summary")
+                       conditionalPanel(
+                         condition = "input.view == 'info'",
+                         verbatimTextOutput("datainfo")
+                       ),
+                       conditionalPanel(
+                         condition = "input.view == 'sum'",
+                         verbatimTextOutput("summary")
+                       ),
+                       conditionalPanel(
+                         condition = "input.view == 'raw'",
+                         tableOutput("rawdata")
+                       )
                      )
-                   )
+                 )
                  )
                  ),
                  tabPanel("Machine Learning",
@@ -97,6 +112,24 @@ ui <- navbarPage("First Take Away",
                           
                           ),
                  tabPanel("Plots of the data",
+                          fluidPage(
+                            titlePanel("Interactive plots of the data"),
+                            br(),
+                            "jola",
+                            sidebarLayout(
+                              sidebarPanel(
+                                p("To show a summary of the data, we have used the function dfSummary,
+                                  which shows  univariate statistics and/or frequency distributions, 
+                                  bar charts or histograms, as well as missing data counts and proportions"),
+                                
+                              ),
+                              mainPanel(
+                                
+                              )
+                            )
+                          )
+                 ),
+                 tabPanel("Interactive plots",
                           fluidPage(
                             titlePanel("Interactive plots of the data"),
                             br(),
@@ -145,6 +178,10 @@ server <- function(input, output) {
     responseRoutine(input$method, input$trainpercent, input$randomseed)
   })
   
+  output$rawdata <- renderTable({
+    wine
+  })
+  
   # Show the fit and the confusion matrix of each model.
   
   output$fit <- renderPrint({
@@ -157,6 +194,10 @@ server <- function(input, output) {
   
   output$summary <- renderPrint({
     dfSummary(wine)
+  })
+  
+  output$datainfo <- renderPrint({
+    p("Here we have blabla")
   })
 }
 
