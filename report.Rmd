@@ -2,26 +2,89 @@
 title: "report"
 author: "Marta Ilundain"
 date: "17/3/2021"
-output: html_document
+output: pdf_document
 params: 
   method: 'lda'
   trainpercent: 0.75
   randomseed: 1
 ---
-```{r include=FALSE}
-  dist <- eval(parse(text=paste(params$dist)))
+
+```{r}
+###########################################################################
+
+library(devtools)
+library(usethis)
+library(ggplot2)
+
+library(kaggler)
+kaggler::kgl_auth(username="martailundain",key="55489399e4f868af9b80e535ef1ab841")
+
+library(shiny)
+library(shinythemes)
+require(shinyjs)
+require(summarytools)
+
+winedata <- kgl_datasets_download(owner_dataset = "rajyellow46/wine-quality", 
+                              fileName = "winequalityN.csv")
+
+#Preprocess of the data
+
+wine = na.omit(winedata)
+wine$type = as.factor(wine$type)
+wine[,7] = log(wine[,7])
+colnames(wine)[7] <- "log_free.sulfur.dioxide"
+wine[,8] = log(wine[,8])
+colnames(wine)[8] <- "log_total.sulfur.dioxide"
 ```
 
 ```{r}
-# The `params` object is available in the document.
-params$n_sample
+setupData <- function(trainpercent, randomseed)
+{
+  # To make computations reproducible.
+  set.seed(randomseed)
+
+  # Partition intro training and testing.
+  spl = caret::createDataPartition(wine$type, p = trainpercent, list = FALSE)  # 80% for training
+  
+  wineTrain = wine[spl,]
+  wineTest = wine[-spl,]
+  invisible( list(training=wineTrain, testing=wineTest) )
+}
+
+generic.fit <- function(method, training, testing)
+{
+  
+  fit <- train(type ~ ., data = training, method=method)
+  OutOfSample  <- predict(fit, newdata=testing)
+  confusion <- confusionMatrix(testing$type, OutOfSample, positive='white')
+  
+  invisible( list(fit=fit, confusion=confusion) )
+}
+
+# Setup data when the partition or the seed change and use a specified method.
+responseRoutine <- function(method, trainpercent, randomseed)
+{
+  d <- setupData(trainpercent, randomseed)
+  fit <- generic.fit(method, d$training, d$testing)
+  invisible(fit)
+}
 ```
 
-A histogram of `r params$n_sample` random points with `r params$dist` distribution
-
-<pre class="r"><code class="hljs">hist(`r params$dist`(`r params$n_sample`), breaks=<span class="hljs-string">"`r params$breaks`"</span>, main=<span class="hljs-string">"Random Generation"</span>)</code></pre>
-
-```{r echo=FALSE}
-xname <- paste(params$dist,"(",params$n_sample,")",sep='')
-hist(dist(params$n_sample), breaks=params$breaks, main="Random Generation", xlab = xname )
+```{r}
+result = responseRoutine(params$method, params$trainpercent, params$randomseed)
 ```
+
+#Fit of the model:
+
+```{r}
+result$fit
+```
+
+#Confusion matrix:
+
+```{r}
+result$confusion
+```
+
+
+

@@ -98,7 +98,9 @@ ui <- navbarPage("First Take Away",
                                                         " Decision Tree" = "rpart"),
                                             selected = NULL,
                                             multiple = FALSE),
+                                downloadButton("report", "Generate report")
                               ),
+                              
                               
                               # Tab panels:
                               mainPanel(
@@ -298,11 +300,11 @@ server <- function(input, output) {
     data()$confusion
   })
   
-  output$summary <- renderText({
+  output$summary <- renderPrint({
     dfSummary(wine)
   })
   
-  output$datainfo <- renderPrint({
+  output$datainfo <- renderUI({
     h4("This shiny shows the main characteristics of a wine dataset. This wine dataset
     is a mix of two datasets, one for red wine and another one for white one. The two datasets 
     are related to red and white variants of the Portuguese Vinho Verde wine. The reference
@@ -369,6 +371,33 @@ pH, sulphates, alcohol and an output variable (based on sensory data) which is q
                           xaxis = list(showgrid = FALSE),
                           yaxis = list(showgrid = FALSE))
   })
+  
+  output$report <- downloadHandler(
+    # For PDF output, change this to "report.pdf"
+    filename = "report.pdf",
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("report.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+      params <- list(
+        method = isolate(input$method), 
+        trainpercent = isolate(input$trainpercent), 
+        randomseed = isolate(input$randomseed)
+      )
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
 }
 
 # Run the application 
